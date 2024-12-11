@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power Appliance Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .input-group {
+            margin: 10px 0;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+        }
+        input[type="number"], select, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .appliance-list {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .appliance-item {
+            margin-bottom: 10px;
+        }
+        .remove-button {
+            background-color: #f44336;
+            margin-left: 10px;
+        }
+        .quantity-controls {
+            display: inline-block;
+            margin-left: 10px;
+        }
+        .quantity-controls button {
+            padding: 5px;
+            background-color: #ddd;
+            border: 1px solid #bbb;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .quantity-controls button:hover {
+            background-color: #bbb;
+        }
+        .custom-appliance-group {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Power Appliance Calculator</h1>
+
+        <div class="input-group">
+            <label for="battery-capacity">Enter Battery Capacity (Ah):</label>
+            <input type="number" id="battery-capacity" placeholder="e.g. 200">
+        </div>
+
+        <div class="input-group">
+            <label for="number-of-batteries">Enter Number of Batteries:</label>
+            <input type="number" id="number-of-batteries" placeholder="e.g. 2">
+        </div>
+
+        <div class="input-group">
+            <label for="inverter-capacity">Enter Inverter Capacity (VA):</label>
+            <input type="number" id="inverter-capacity" placeholder="e.g. 3000">
+        </div>
+
+        <div class="input-group">
+            <label for="number-of-bedrooms">Enter Number of Bedrooms:</label>
+            <input type="number" id="number-of-bedrooms" placeholder="e.g. 3">
+        </div>
+
+        <div class="input-group">
+            <label for="appliance-select">Select Appliance:</label>
+            <select id="appliance-select">
+                <option value="10">LED Light Bulb (10W)</option>
+                <option value="60">Ceiling Fan (60W)</option>
+                <option value="100">Television (100W)</option>
+                <option value="15">Wi-Fi Router (15W)</option>
+                <option value="300">Blender (300W)</option>
+                <option value="800">Microwave (800W)</option>
+                <option value="150">Refrigerator (150W)</option>
+                <option value="1000">Washing Machine (1000W)</option>
+            </select>
+            <button onclick="addAppliance()">Add Appliance</button>
+        </div>
+
+        <div class="custom-appliance-group">
+            <h3>Add Custom Appliance</h3>
+            <div class="input-group">
+                <label for="custom-appliance-name">Appliance Name:</label>
+                <input type="text" id="custom-appliance-name" placeholder="e.g. Air Conditioner">
+            </div>
+            <div class="input-group">
+                <label for="custom-appliance-watts">Appliance Power (Watts):</label>
+                <input type="number" id="custom-appliance-watts" placeholder="e.g. 1200">
+            </div>
+            <button onclick="addCustomAppliance()">Add Custom Appliance</button>
+        </div>
+
+        <div id="appliance-list-container">
+            <h3>Appliance List</h3>
+            <div id="appliance-list" class="appliance-list"></div>
+        </div>
+
+        <button onclick="generateRecommendations()">Generate Recommendations</button>
+
+        <div id="result" class="result" style="display: none;">
+            <p><strong>Suggested Appliances:</strong></p>
+            <div id="result-list" class="appliance-list"></div>
+        </div>
+    </div>
+
+    <script>
+        var selectedAppliances = [];
+
+        function addAppliance() {
+            var applianceSelect = document.getElementById("appliance-select");
+            var applianceName = applianceSelect.options[applianceSelect.selectedIndex].text;
+            var appliancePower = parseFloat(applianceSelect.value);
+
+            // Check if appliance already exists in the list
+            var existingAppliance = selectedAppliances.find(function(appliance) {
+                return appliance.name === applianceName;
+            });
+
+            if (existingAppliance) {
+                // Increase the quantity of the existing appliance
+                existingAppliance.quantity += 1;
+            } else {
+                // Add new appliance to the list
+                selectedAppliances.push({ name: applianceName, power: appliancePower, quantity: 1 });
+            }
+
+            // Update appliance list in UI
+            updateApplianceList();
+        }
+
+        function addCustomAppliance() {
+            var applianceName = document.getElementById("custom-appliance-name").value;
+            var appliancePower = parseFloat(document.getElementById("custom-appliance-watts").value);
+
+            if (applianceName && !isNaN(appliancePower)) {
+                // Check if custom appliance already exists
+                var existingAppliance = selectedAppliances.find(function(appliance) {
+                    return appliance.name === applianceName;
+                });
+
+                if (existingAppliance) {
+                    // Increase the quantity of the existing appliance
+                    existingAppliance.quantity += 1;
+                } else {
+                    // Add new custom appliance to the list
+                    selectedAppliances.push({ name: applianceName, power: appliancePower, quantity: 1 });
+                }
+
+                // Reset the input fields
+                document.getElementById("custom-appliance-name").value = '';
+                document.getElementById("custom-appliance-watts").value = '';
+
+                // Update appliance list in UI
+                updateApplianceList();
+            } else {
+                alert("Please provide valid appliance name and power.");
+            }
+        }
+
+        function removeAppliance(index) {
+            // Remove the appliance from the list
+            selectedAppliances.splice(index, 1);
+
+            // Update appliance list in UI
+            updateApplianceList();
+        }
+
+        function changeQuantity(index, delta) {
+            // Change the quantity of the selected appliance
+            selectedAppliances[index].quantity += delta;
+
+            if (selectedAppliances[index].quantity <= 0) {
+                selectedAppliances.splice(index, 1); // Remove the appliance if quantity is 0 or less
+            }
+
+            // Update appliance list in UI
+            updateApplianceList();
+        }
+
+        function updateApplianceList() {
+            var applianceListHtml = "";
+            selectedAppliances.forEach(function(appliance, index) {
+                applianceListHtml += `
+                    <div class="appliance-item">
+                        <span>${appliance.name} (${appliance.power}W) x ${appliance.quantity}</span>
+                        <div class="quantity-controls">
+                            <button onclick="changeQuantity(${index}, -1)">-</button>
+                            <button onclick="changeQuantity(${index}, 1)">+</button>
+                        </div>
+                        <button class="remove-button" onclick="removeAppliance(${index})">Remove</button>
+                    </div>
+                `;
+            });
+
+            document.getElementById("appliance-list").innerHTML = applianceListHtml;
+        }
+
+        function generateRecommendations() {
+            // Get user input values
+            var batteryCapacityAh = parseFloat(document.getElementById("battery-capacity").value);
+            var numberOfBatteries = parseFloat(document.getElementById("number-of-batteries").value);
+            var inverterCapacityVA = parseFloat(document.getElementById("inverter-capacity").value);
+            var numberOfBedrooms = parseFloat(document.getElementById("number-of-bedrooms").value);
+
+            // Validate input
+            if (isNaN(batteryCapacityAh) || isNaN(numberOfBatteries) || isNaN(inverterCapacityVA) || isNaN(numberOfBedrooms)) {
+                alert("Please enter valid numbers for all fields.");
+                return;
+            }
+
+            // Automatically add appliances based on the number of bedrooms
+            for (let i = 0; i < numberOfBedrooms; i++) {
+                selectedAppliances.push({ name: "LED Light Bulb (10W)", power: 10, quantity: 2 });
+                selectedAppliances.push({ name: "Ceiling Fan (60W)", power: 60, quantity: 1 });
+            }
+
+            // Calculate total usable battery capacity (Wh), assuming 12V system and 80% usable capacity
+            var totalBatteryCapacityWh = 12 * batteryCapacityAh * numberOfBatteries * 0.8;
+
+            // Calculate the inverter wattage (assuming 80% efficiency)
+            var inverterWattage = inverterCapacityVA * 0.8;
+
+            // Calculate the total power consumption of selected appliances
+            var totalPowerConsumption = 0;
+            selectedAppliances.forEach(function(appliance) {
+                totalPowerConsumption += appliance.power * appliance.quantity;
+            });
+
+            // Display the suggested appliances and estimated runtime
+            var applianceListHtml = "";
+            selectedAppliances.forEach(function(appliance) {
+                var applianceRuntime = (totalBatteryCapacityWh / (appliance.power * appliance.quantity)).toFixed(2);
+                applianceListHtml += `<p><strong>${appliance.name} x ${appliance.quantity}</strong>: ${applianceRuntime} hours</p>`;
+            });
+
+            // Calculate runtime when all appliances work concurrently
+            if (totalPowerConsumption > 0) {
+                var concurrentRuntime = (totalBatteryCapacityWh / totalPowerConsumption).toFixed(2);
+                applianceListHtml += `<p><strong>Estimated Concurrent Runtime (all appliances):</strong> ${concurrentRuntime} hours</p>`;
+            }
+
+            if (selectedAppliances.length > 0) {
+                document.getElementById("result-list").innerHTML = applianceListHtml;
+                document.getElementById("result").style.display = "block";
+            } else {
+                document.getElementById("result-list").innerHTML = "<p>No appliances selected.</p>";
+                document.getElementById("result").style.display = "block";
+            }
+        }
+    </script>
+
+</body>
+</html>
