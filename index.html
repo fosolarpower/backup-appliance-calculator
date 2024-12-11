@@ -116,11 +116,6 @@
         </div>
 
         <div class="input-group">
-            <label for="number-of-bedrooms">Enter Number of Bedrooms:</label>
-            <input type="number" id="number-of-bedrooms" placeholder="e.g. 3">
-        </div>
-
-        <div class="input-group">
             <label for="appliance-select">Select Appliance:</label>
             <select id="appliance-select">
                 <option value="10">LED Light Bulb (10W)</option>
@@ -258,18 +253,11 @@
             var batteryCapacityAh = parseFloat(document.getElementById("battery-capacity").value);
             var numberOfBatteries = parseFloat(document.getElementById("number-of-batteries").value);
             var inverterCapacityVA = parseFloat(document.getElementById("inverter-capacity").value);
-            var numberOfBedrooms = parseFloat(document.getElementById("number-of-bedrooms").value);
 
             // Validate input
-            if (isNaN(batteryCapacityAh) || isNaN(numberOfBatteries) || isNaN(inverterCapacityVA) || isNaN(numberOfBedrooms)) {
+            if (isNaN(batteryCapacityAh) || isNaN(numberOfBatteries) || isNaN(inverterCapacityVA)) {
                 alert("Please enter valid numbers for all fields.");
                 return;
-            }
-
-            // Automatically add appliances based on the number of bedrooms
-            for (let i = 0; i < numberOfBedrooms; i++) {
-                selectedAppliances.push({ name: "LED Light Bulb (10W)", power: 10, quantity: 2 });
-                selectedAppliances.push({ name: "Ceiling Fan (60W)", power: 60, quantity: 1 });
             }
 
             // Calculate total usable battery capacity (Wh), assuming 12V system and 80% usable capacity
